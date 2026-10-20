@@ -1,13 +1,15 @@
 name: Tidy up PDF pull request
 
 on:
-  pull_request_target:
+  pull_request_target:  # Recommended (rather than pull_request) for closed event
     paths: '*.tex'
     types: [closed]
 
 jobs:
   clean:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write  # Needed to delete the remote branch
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       pr_number: ${{ github.event.number }}

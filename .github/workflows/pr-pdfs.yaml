@@ -4,13 +4,16 @@ on:
   pull_request:
     paths: '*.tex'
 
+permissions: {}
+
 jobs:
   LaTeX:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Identify changed LaTeX documents
         env:
@@ -37,7 +40,7 @@ jobs:
           run1: make ${{ env.pdfs }}
           run2: -make -k OLD=$mergebase_sha NEW=HEAD ${{ env.diffs }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: pdf
           retention-days: 1

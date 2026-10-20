@@ -7,14 +7,19 @@ on:
 
 jobs:
   comment:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write       # Needed to push the branch
+      pull-requests: write  # Needed to comment on the pull request
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run_id: ${{ github.event.workflow_run.id }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: true  # Needed for git operations
 
       - name: Download artifacts
         run: |

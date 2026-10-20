@@ -549,8 +549,8 @@ See also Section~\ref{sv-format-keys} for a list of genotype keys reserved for s
       LADF		& LR    	& Integer	& Local-allele representation of ADF \\
       LADR		& LR    	& Integer	& Local-allele representation of ADR \\
       LEC		& LA     	& Integer	& Local-allele representation of EC \\
-      LGL		& LG    	& Integer	& Local-allele representation of GL \\
-      LGP		& LG    	& Integer	& Local-allele representation of GP \\
+      LGL		& LG    	& Float		& Local-allele representation of GL \\
+      LGP		& LG    	& Float		& Local-allele representation of GP \\
       LPL		& LG    	& Integer	& Local-allele representation of PL \\
       LPP		& LG    	& Integer	& Local-allele representation of PP \\
       M[0-9]+[ACGTUN]   & M & Float     & Fraction of bases modified with the given ChEBI ID. \\
@@ -771,7 +771,7 @@ See also Section~\ref{sv-format-keys} for a list of genotype keys reserved for s
   \item PSL (List of Strings): The list of phase sets, one for each allele value specified in the {\tt GT}. 
   Unphased alleles (without a $\mid$ separator before them) must have the value '$.$' in their corresponding position in the list.
   Unlike {\tt PS} (which is defined per CHROM), records with different CHROM but the same phase-set name are considered part of the same phase set.
-  If an implementation cannot guarantee uniqueness of phase-set names across the VCF (for example, phasing a streaming VCF or each CHROM is processed independently in parallel), new phase-set names should be of the format CHROM*POS*ALLELE-NUMBER of the ``first'' allele which is included in this set, with ALLELE-NUMBER being the index of the allele in the {\tt GT} field, since multiple distinct phase-sets could start at the same position. \footnote{The `*' character is used as a separator since `:' is not reserved in the CHROM column.}
+  If an implementation cannot guarantee uniqueness of phase-set names across the VCF (for example, phasing a streaming VCF or each CHROM is processed independently in parallel), new phase-set names should be of the format CHROM*POS*ALLELE-NUMBER of the ``first'' allele which is included in this set, with ALLELE-NUMBER being the one-based index of the allele in the {\tt GT} field, since multiple distinct phase-sets could start at the same position. \footnote{The `*' character is used as a separator since `:' is not reserved in the CHROM column.}
   A given sample-genotype must not have values for both PS and PSL.
   In addition, PS and PSL are not interoperable, in that a PS mentioned in one variant cannot be referenced in a PSL in another,  since when used in PS it isn't connected to any specific haplotype (i.e. first or second), but PSL is. 
  
@@ -780,8 +780,8 @@ See also Section~\ref{sv-format-keys} for a list of genotype keys reserved for s
   \vspace{0.5em}
   \begin{tabular}{ l l l l l l l l l l}
     \#CHROM & POS & ID & REF & ALT & QUAL & FILTER & INFO & FORMAT & SAMPLE1\\
-     chr19 & $5$ & . & T & G & . & PASS & DP=100 &GT:PSL & \tt{|0/1:chr9*5*1,.}\\
-    chr20 & $10$ & . & A & T,G & . & PASS & DP=100 &GT:PSL & \tt{|1/2|3:chr20*10*1,.,chr9*5*1} \\
+     chr19 & $5$ & . & T & G & . & PASS & DP=100 &GT:PSL & \tt{|0/1:chr19*5*1,.}\\
+    chr20 & $10$ & . & A & T,G & . & PASS & DP=100 &GT:PSL & \tt{|1/2|3:chr20*10*1,.,chr19*5*1} \\
     chr20 & $15$ & . & G & C & . & PASS & DP=100 &GT:PSL & \tt{1|2:.,chr20*10*1}\\
   \end{tabular}
   
@@ -797,9 +797,9 @@ See also Section~\ref{sv-format-keys} for a list of genotype keys reserved for s
   \vspace{0.5em}
   \begin{tabular}{ l l l l l l l l l l}
   \#CHROM & POS & REF & ALT & INFO & FORMAT & SAMPLE1\\
-    chr1 & $10$ & T & $<$DUP$>$ & SVCLAIM=DJ & GT:PSL:PSO & \tt{/0/0|1:.,.,chr1*10*1:.,.,3}\\
-    chr1 & $20$ & A & G & . & GT:PSL:PSO & \tt{/0/0|0|1:.,.,chr1*10*1,chr1*10*1:.,.,4,1} \\
-    chr1 & $30$ & G & T & . & GT:PSL:PSO & \tt{/0/0|0|1:.,.,chr1*10*1,chr1*10*1:.,.,2,5} \\
+    chr1 & $10$ & T & $<$DUP$>$ & SVCLAIM=DJ & GT:PSL:PSO & \tt{/0/0|1:.,.,chr1*10*3:.,.,3}\\
+    chr1 & $20$ & A & G & . & GT:PSL:PSO & \tt{/0/0|0|1:.,.,chr1*10*1,chr1*10*3:.,.,4,1} \\
+    chr1 & $30$ & G & T & . & GT:PSL:PSO & \tt{/0/0|0|1:.,.,chr1*10*1,chr1*10*3:.,.,2,5} \\
   \end{tabular}
   
   Without defining PSO, it would be ambiguous as to which copy of the duplicated region the SNVs occur on.
@@ -1627,7 +1627,7 @@ Either one uses the short hand notation described previously (recommended for si
 \small
 \begin{tabular}{ l l l l l l l l }
 \#CHROM & POS & ID & REF & ALT & QUAL & FILTER & INFO \\
-2 & 321681 & INV0 & T & $<$INV$>$ & 6 & PASS & SVLEN=100000 \\
+2 & 321681 & INV0 & G & $<$INV$>$ & 6 & PASS & SVLEN=100000 \\
 \end{tabular}
 \normalsize
 \vspace{0.3cm}
@@ -2050,7 +2050,7 @@ chr1 1000000 . T <CNV:TR> . . SVLEN=20000;CN=1.25;RUL=10000;RUC=5;RUB=10000,1050
 VCF is very expressive, accommodates multiple samples, and is widely used in the community.
 Its biggest drawback is that it is big and slow.
 Files are text and therefore require a lot of space on disk.
-A normal batch of a hundred exomes is a few GB, but large-scale VCFs with thousands of exome samples quickly become hundreds of GBs.
+A normal batch of a hundred exomes is a few gigabytes, but large-scale VCFs with thousands of exome samples quickly become hundreds of gigabytes.
 Because the file is text, it is extremely slow to parse.
 
 Overall, the idea behind is BCF2 is simple.
@@ -2477,9 +2477,9 @@ $0\mid1$ & $(1 + 1) << 1 \mid 1$ = 0x05 preceded by the phased first byte value 
 ./. & where both alleles are missing & 0x00 00 \\ \hline
 0 & as an implicitly phased haploid it is represented by a single byte & 0x03 \\ \hline
 1 & as an implicitly phased haploid it is represented by a single byte & 0x05 \\ \hline
-0/1/2 & is tetraploid, with alleles & 0x02 04 06 \\ \hline
-$0/1\mid2$ & is tetraploid with a single phased allele & 0x02 04 07 \\ \hline
-0 and 0/1 & pad out the final allele for the haploid individual & 0x02 81 02 04\\ \hline
+0/1/2 & is triploid, with alleles & 0x02 04 06 \\ \hline
+$0/1\mid2$ & is triploid with a single phased allele & 0x02 04 07 \\ \hline
+0 and 0/1 & pad out the final allele for the haploid individual & 0x03 81 02 04\\ \hline
 \end{tabular}
 \normalsize
 
